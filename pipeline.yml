@@ -1,0 +1,15 @@
+
+resources:
+  - name: demo
+    type: git
+    source:
+      uri: https://github.com/demo151996/demo.git
+      branch: main
+
+  - name: jdk21-image
+    type: registry-image
+    source:
+      repository: ghcr.io/demo151996/jdk21-custom
+      tag: latest
+      username: CarolineMarshel
+      password: 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
