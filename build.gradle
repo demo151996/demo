@@ -1,0 +1,171 @@
+buildscript {
+    ext {
+        springBootVersion = '3.4.5'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = "${artifactory_url}/plugins-release"
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+    }
+}
+
+plugins {
+	id 'java'
+    id 'eclipse'
+    id 'idea'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+    id "com.jfrog.artifactory" version "5.2.0"
+    id "com.github.ManifestClasspath" version "0.1.0-RELEASE"
+}
+
+eclipse {
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+group = 'com.comcast.Devx'
+version = '1.0.0'
+
+configurations {
+    developmentOnly
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    e2eTestConfig {
+        exclude(group: 'org.springframework.boot', module:'spring-boot-starter-test')
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.guava:guava:33.4.0-jre'
+        force 'com.amazonaws:amazon-kinesis-producer:0.15.12'
+    }
+}
+
+jar  {
+    archiveBaseName.set(rootProject.getName())
+    archiveVersion.set(rootProject.getVersion())
+    manifest {
+        attributes(
+                'Implementation-Title': rootProject.getName(),
+                'Implementation-Version': rootProject.getVersion(),
+                'Implementation-Vendor': 'Comcast Corp.',
+                'Specification-Title': 'CMT Cloud Framework',
+                'Specification-Version': '1.0',
+                'Specification-Vendor': 'CMT Framework Team'
+        )
+    }
+}
+
+bootRun {
+    mainClass = 'com.comcast.Devx.DevxApplication'
+    sourceResources sourceSets.main
+    systemProperties = System.properties
+    jvmArgs=["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
+}
+
+springBoot {
+    buildInfo()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-graphql'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    // JQ
+    implementation 'net.thisptr:jackson-jq:1.2.0'
+
+    //Prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.14.5'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // json-parse
+    implementation 'com.github.java-json-tools:json-patch:1.13'
+
+    implementation 'com.apollographql.federation:federation-graphql-java-support:3.0.0'
+    // Add extended scalar support
+    implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
+
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation 'org.json:json:20240303'
+    implementation 'co.elastic.logging:logback-ecs-encoder:1.5.0'
+
+    //DX Integration
+    implementation("com.comcast.customer:dx-publisher-lib:3.0.1"){
+        exclude group: "org.slf4j", module: "slf4j-simple"
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
+        exclude group: "com.fasterxml.jackson.dataformat", module: "jackson-dataformat-cbor"
+    
+    }
+    
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+artifactory {
+    contextUrl = "${artifactory_url}"
+    repositories {
+        maven {
+            name = 'libs-release'
+            url = "${artifactory_url}/libs-release"
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = '8.13'
+    distributionUrl = distributionUrl.replace("bin", "all")
+}
