@@ -1,0 +1,14 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = "${artifactory_url}/libs-release"
+        }
+        maven {
+            url = "${artifactory_url}/plugins-release"
+        }
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'Devx'
