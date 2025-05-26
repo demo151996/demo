@@ -13,3 +13,13 @@ resources:
       tag: latest
       username: CarolineMarshel
       password: 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
+
+jobs:
+  - name: build-and-push-jdk-image
+    plan:
+      - get: demo
+        trigger: true # Trigger this job when changes occur in the repo
+
+      - put: jdk21-custom-image # Push the built image to GHCR
+        params:
+          build: demo
