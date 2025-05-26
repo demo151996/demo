@@ -12,4 +12,4 @@ resources:
       repository: ghcr.io/demo151996/jdk21-custom
       tag: latest
       username: CarolineMarshel
-      password: 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
+      password: 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
