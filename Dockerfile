@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM ghcr.io/demo151996/jdk21-custom
 EXPOSE 8080
 ADD /build/libs/Devx-*.jar app.jar
 RUN cd / && \
